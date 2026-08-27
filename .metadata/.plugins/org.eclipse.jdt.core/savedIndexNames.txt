@@ -1,0 +1,10 @@
+INDEX VERSION 1.134+D:\24162112_NguyenHuyTan_CRUD\.metadata\.plugins\org.eclipse.jdt.core
+1865797976.index
+237776239.index
+4047621248.index
+2700192021.index
+2557067422.index
+4036441545.index
+1111432439.index
+3065826114.index
+3127196022.index
