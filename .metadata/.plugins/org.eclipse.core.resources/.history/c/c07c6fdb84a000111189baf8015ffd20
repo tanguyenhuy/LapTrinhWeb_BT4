@@ -1,8 +1,0 @@
-package huytan.vn.services;
-
-public class UserService {
-    public boolean checkLogin(String username, String password) {
-
-        return "huytan".equals(username) && "123".equals(password);
-    }
-}	

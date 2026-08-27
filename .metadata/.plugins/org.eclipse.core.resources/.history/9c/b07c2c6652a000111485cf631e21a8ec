@@ -1,5 +1,0 @@
-package huytan.vn.repository;
-
-public class JDBCConect {
-
-}

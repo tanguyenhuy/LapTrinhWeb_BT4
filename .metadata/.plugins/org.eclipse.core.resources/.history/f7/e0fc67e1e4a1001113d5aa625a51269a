@@ -1,0 +1,5 @@
+package huytan.vn.dao;
+
+public class ICategoryDao {
+
+}

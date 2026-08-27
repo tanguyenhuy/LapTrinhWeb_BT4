@@ -16,10 +16,10 @@ public class DownloadImageController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String fileName = req.getParameter("fname");
-        if (fileName != null) {
-            File file = new File(Constant.DIR + "/" + fileName);
-            resp.setContentType("image/jpeg");
+        if (fileName != null && !fileName.isEmpty()) {
+            File file = new File(Constant.DIR + File.separator + fileName);
             if (file.exists()) {
+                resp.setContentType("image/jpeg");
                 try (FileInputStream fis = new FileInputStream(file);
                      OutputStream os = resp.getOutputStream()) {
                     fis.transferTo(os);
