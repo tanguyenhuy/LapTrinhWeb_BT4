@@ -1,0 +1,5 @@
+package huytan.vn.dao.impl;
+
+public class UserDaoImpl {
+
+}

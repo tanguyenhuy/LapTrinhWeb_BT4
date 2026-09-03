@@ -204,3 +204,53 @@
 2026-08-27 06:31:56.094: [INFO] BookmarksLoadDropped droppedNodes=0
 2026-08-27 06:31:56.094: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
 2026-08-27 07:46:51.635: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-08-28 07:23:29.871: [INFO] CurrentProfilePath: D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-08-28 07:23:29.871: [INFO] Profiles total count: 1
+2026-08-28 07:23:29.871: [INFO] Profile: name=Profile 1 path=D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-08-24T06:38:12.161Z
+2026-08-28 07:23:29.871: [INFO] LastUsedProfileDir: D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-08-28 07:23:29.871: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-08-24T06:38:12.161Z
+2026-08-28 07:23:29.871: [INFO] OnDoneLoading sync enabled: 0
+2026-08-28 07:23:29.871: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-08-28 07:23:29.871: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-08-28 07:23:29.871: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-08-28 07:28:50.585: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-08-28 07:55:47.131: [INFO] CurrentProfilePath: D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-08-28 07:55:47.131: [INFO] Profiles total count: 1
+2026-08-28 07:55:47.132: [INFO] Profile: name=Profile 1 path=D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-08-24T06:38:12.161Z
+2026-08-28 07:55:47.132: [INFO] LastUsedProfileDir: D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-08-28 07:55:47.132: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-08-24T06:38:12.161Z
+2026-08-28 07:55:47.132: [INFO] OnDoneLoading sync enabled: 0
+2026-08-28 07:55:47.132: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-08-28 07:55:47.132: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-08-28 07:55:47.132: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-08-28 08:02:19.159: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-08-28 19:58:49.738: [INFO] CurrentProfilePath: D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-08-28 19:58:49.738: [INFO] Profiles total count: 1
+2026-08-28 19:58:49.738: [INFO] Profile: name=Profile 1 path=D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-08-24T06:38:12.161Z
+2026-08-28 19:58:49.738: [INFO] LastUsedProfileDir: D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-08-28 19:58:49.738: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-08-24T06:38:12.161Z
+2026-08-28 19:58:49.738: [INFO] OnDoneLoading sync enabled: 0
+2026-08-28 19:58:49.738: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-08-28 19:58:49.738: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-08-28 19:58:49.738: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-08-28 21:07:06.175: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-08-29 03:20:53.008: [INFO] CurrentProfilePath: D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-08-29 03:20:53.008: [INFO] Profiles total count: 1
+2026-08-29 03:20:53.008: [INFO] Profile: name=Profile 1 path=D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-08-24T06:38:12.161Z
+2026-08-29 03:20:53.008: [INFO] LastUsedProfileDir: D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-08-29 03:20:53.008: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-08-24T06:38:12.161Z
+2026-08-29 03:20:53.008: [INFO] OnDoneLoading sync enabled: 0
+2026-08-29 03:20:53.008: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-08-29 03:20:53.008: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-08-29 03:20:53.008: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-08-29 08:12:35.741: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-08-29 15:28:35.296: [INFO] CurrentProfilePath: D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-08-29 15:28:35.296: [INFO] Profiles total count: 1
+2026-08-29 15:28:35.297: [INFO] Profile: name=Profile 1 path=D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-08-24T06:38:12.161Z
+2026-08-29 15:28:35.297: [INFO] LastUsedProfileDir: D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default
+2026-08-29 15:28:35.297: [INFO] MostRecentlyActiveProfile: name=Profile 1 path=D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default lastActive=2026-08-24T06:38:12.161Z
+2026-08-29 15:28:35.297: [INFO] OnDoneLoading sync enabled: 0
+2026-08-29 15:28:35.297: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-08-29 15:28:35.297: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-08-29 15:28:35.297: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-08-29 15:51:57.466: [INFO] BookmarksSnapshot Shutdown total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1

@@ -1,0 +1,36 @@
+package huytan.vn.controllers;
+
+import java.io.IOException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import huytan.vn.services.IUserService;
+import huytan.vn.service.impl.UserServiceImpl;
+
+@WebServlet(urlPatterns = "/verify-otp")
+public class VerifyOtpController extends HttpServlet {
+  
+	private static final long serialVersionUID = 1L;
+	private IUserService userService = new UserServiceImpl();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.getRequestDispatcher("/views/verify-otp.jsp").forward(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String email = req.getParameter("email");
+        String otp = req.getParameter("otp");
+
+        boolean isVerified = userService.verifyOtp(email, otp);
+        if (isVerified) {
+            req.getSession().removeAttribute("verify_email");
+            req.setAttribute("message", "Kích hoạt tài khoản thành công! Vui lòng đăng nhập.");
+            req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+        } else {
+            req.setAttribute("error", "Mã OTP không chính xác!");
+            req.getRequestDispatcher("/views/verify-otp.jsp").forward(req, resp);
+        }
+    }
+}

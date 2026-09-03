@@ -1,0 +1,5 @@
+package huytan.vn.util;
+
+public class EmailUtil {
+
+}

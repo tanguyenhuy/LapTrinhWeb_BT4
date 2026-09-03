@@ -1,0 +1,42 @@
+package huytan.vn.controllers;
+
+import java.io.IOException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+
+@WebServlet(urlPatterns = "/logout")
+public class LogoutController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        HttpSession session = req.getSession(false);
+        if (session != null) {
+            session.removeAttribute("account");
+            session.invalidate();
+        }
+
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("username".equals(cookie.getName())) {
+                    cookie.setValue("");
+                    cookie.setMaxAge(0);
+                    cookie.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
+                    resp.addCookie(cookie);
+
+                    Cookie rootCookie = new Cookie("username", "");
+                    rootCookie.setMaxAge(0);
+                    rootCookie.setPath("/");
+                    resp.addCookie(rootCookie);
+                    break;
+                }
+            }
+        }
+
+
+        resp.sendRedirect(req.getContextPath() + "/login");
+    }
+}

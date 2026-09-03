@@ -1,0 +1,53 @@
+package huytan.vn.controllers;
+
+import java.io.IOException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import huytan.vn.services.IUserService;
+import huytan.vn.service.impl.UserServiceImpl;
+
+@WebServlet(urlPatterns = { "/forgot-password", "/reset-password" })
+public class ForgotPasswordController extends HttpServlet {
+
+	private static final long serialVersionUID = 1L;
+	private IUserService userService = new UserServiceImpl();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String url = req.getRequestURI();
+        if (url.contains("/forgot-password")) {
+            req.getRequestDispatcher("/views/forgot-password.jsp").forward(req, resp);
+        } else {
+            req.getRequestDispatcher("/views/reset-password.jsp").forward(req, resp);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String url = req.getRequestURI();
+        if (url.contains("/forgot-password")) {
+            String email = req.getParameter("email");
+            if (userService.sendForgotPasswordOtp(email)) {
+                req.getSession().setAttribute("reset_email", email);
+                resp.sendRedirect(req.getContextPath() + "/reset-password");
+            } else {
+                req.setAttribute("error", "Email không tồn tại trong hệ thống!");
+                req.getRequestDispatcher("/views/forgot-password.jsp").forward(req, resp);
+            }
+        } else if (url.contains("/reset-password")) {
+            String email = req.getParameter("email");
+            String otp = req.getParameter("otp");
+            String newPassword = req.getParameter("password");
+
+            if (userService.resetPassword(email, otp, newPassword)) {
+                req.getSession().removeAttribute("reset_email");
+                req.setAttribute("message", "Đổi mật khẩu thành công! Vui lòng đăng nhập.");
+                req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+            } else {
+                req.setAttribute("error", "Mã OTP không đúng!");
+                req.getRequestDispatcher("/views/reset-password.jsp").forward(req, resp);
+            }
+        }
+    }
+}

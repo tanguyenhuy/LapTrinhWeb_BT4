@@ -1,3 +1,2 @@
-2026/08/27-13:32:00.057 bd0 Reusing MANIFEST D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\Session Storage/MANIFEST-000001
-2026/08/27-13:32:00.057 bd0 Recovering log #3
-2026/08/27-13:32:00.058 bd0 Reusing old log D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\Session Storage/000003.log 
+2026/08/29-22:28:35.359 57f4 Creating DB D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\Session Storage since it was missing.
+2026/08/29-22:28:35.365 57f4 Reusing MANIFEST D:\24162112_NguyenHuyTan_JPA\.metadata\.plugins\org.eclipse.swt\EBWebView\Default\Session Storage/MANIFEST-000001

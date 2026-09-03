@@ -4,8 +4,10 @@
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
 
     <persistence-unit name="jpa-hibernate-sqlserver">
-        <class>huytan.vn.entities.Category</class>
-        <class>huytan.vn.entities.Video</class>
+        <class>huytan.vn.entities.User</class>
+		<class>huytan.vn.entities.Category</class>
+		<class>huytan.vn.entities.Product</class>
+		<class>huytan.vn.entities.Video</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
