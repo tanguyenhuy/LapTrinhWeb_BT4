@@ -1,0 +1,80 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hồ Sơ Cá Nhân</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 25px; background-color: #f4f6f9; }
+        .container { width: 480px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 16px; }
+        label { font-weight: bold; display: block; margin-bottom: 6px; }
+        input[type="text"], input[type="email"] { width: 100%; padding: 9px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        input[readonly] { background-color: #e9ecef; cursor: not-allowed; }
+        .avatar-preview { text-align: center; margin-bottom: 15px; }
+        .avatar-preview img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 2px solid #007bff; }
+        .btn-save { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 15px; }
+        .btn-home { margin-left: 12px; text-decoration: none; color: #555; }
+        .msg { padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        .success { background-color: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align: center; margin-top: 0;">THÔNG TIN TÀI KHOẢN</h2>
+
+    <c:if test="${message != null}">
+        <div class="msg success">${message}</div>
+    </c:if>
+
+    <form action="${pageContext.request.contextPath}/home/profile" method="post" enctype="multipart/form-data">
+        <div class="avatar-preview">
+            <c:choose>
+                <c:when test="${user.images != null && user.images.startsWith('http')}">
+                    <img src="${user.images}" alt="Avatar" />
+                </c:when>
+                <c:when test="${user.images != null}">
+                    <img src="${pageContext.request.contextPath}/image?fname=${user.images}" alt="Avatar" />
+                </c:when>
+                <c:otherwise>
+                    <img src="https://ui-avatars.com/api/?name=${user.username}&size=120" alt="Avatar" />
+                </c:otherwise>
+            </c:choose>
+        </div>
+
+        <div class="form-group">
+            <label>Đổi ảnh đại diện:</label>
+            <input type="file" name="imageFile" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label>Tên đăng nhập (Username):</label>
+            <input type="text" value="${user.username}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" value="${user.email}" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Họ và tên (Fullname):</label>
+            <input type="text" name="fullname" value="${user.fullname}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Số điện thoại (Phone):</label>
+            <input type="text" name="phone" value="${user.phone}" placeholder="Nhập số điện thoại...">
+        </div>
+
+        <div style="margin-top: 25px;">
+            <button type="submit" class="btn-save">Lưu thay đổi</button>
+            <a href="${pageContext.request.contextPath}/home" class="btn-home">&larr; Về trang chủ</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

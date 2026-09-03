@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move element &apos;profile.jsp&apos; to &apos;product-detail.jsp&apos;&#x0D;&#x0A;- Original project: &apos;bt1&apos;&#x0D;&#x0A;- Destination element: &apos;product-detail.jsp&apos;&#x0D;&#x0A;- Original element: &apos;profile.jsp&apos;&#x0D;&#x0A;- Update references to refactored element" description="Move file" element1="src/main/webapp/views/admin/profile.jsp" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.move" policy="org.eclipse.jdt.ui.moveResources" qualified="false" references="true" stamp="1788420364010" target="src/main/webapp/views/product-detail.jsp" units="0" version="1.0"/>
+</session>

@@ -16,11 +16,11 @@ public class UserServiceImpl implements IUserService {
         }
         String otp = EmailUtil.getRandomOTP();
         user.setCode(otp);
-        user.setStatus(0); // Chưa kích hoạt
-        user.setRoleid(3); // Mặc định là User
+        user.setStatus(0); 
+        user.setRoleid(3); 
         userDao.insert(user);
 
-        // Gửi email OTP
+        
         String body = "<h3>Mã OTP kích hoạt tài khoản của bạn là: <b style='color:red;'>" + otp + "</b></h3>";
         EmailUtil.sendEmail(user.getEmail(), "Mã xác thực kích hoạt tài khoản", body);
         return true;
@@ -30,7 +30,7 @@ public class UserServiceImpl implements IUserService {
     public boolean verifyOtp(String email, String otp) {
         User user = userDao.findByEmail(email);
         if (user != null && otp.equals(user.getCode())) {
-            user.setStatus(1); // Đã kích hoạt
+            user.setStatus(1); 
             user.setCode(null);
             userDao.update(user);
             return true;
@@ -76,5 +76,15 @@ public class UserServiceImpl implements IUserService {
     @Override
     public User get(String usernameOrEmail) {
         return userDao.findByUsernameOrEmail(usernameOrEmail);
+    }
+    
+    @Override
+    public User findById(int id) {
+        return userDao.findById(id);
+    }
+
+    @Override
+    public void update(User user) {
+        userDao.update(user);
     }
 }

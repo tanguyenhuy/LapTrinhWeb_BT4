@@ -79,4 +79,14 @@ public class UserDaoImpl implements IUserDao {
             em.close();
         }
     }
+    
+    @Override
+    public User findById(int id) {
+        EntityManager em = JpaConfig.getEntityManager();
+        try {
+            return em.find(User.class, id);
+        } finally {
+            em.close();
+        }
+    }
 }
