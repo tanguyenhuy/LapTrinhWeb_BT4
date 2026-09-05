@@ -13,29 +13,32 @@
                         <i class="bi bi-box-arrow-in-right me-1"></i> ĐĂNG NHẬP
                     </h4>
 
-                    <c:if test="${message != null}">
-                        <div class="alert alert-success py-2 small" role="alert">
-                            ${message}
-                        </div>
-                    </c:if>
-                    <c:if test="${error != null}">
-                        <div class="alert alert-danger py-2 small" role="alert">
-                            ${error}
+                    <c:if test="${not empty message}">
+                        <div class="alert alert-success alert-dismissible fade show py-2 small" role="alert">
+                            <i class="bi bi-check-circle-fill me-1"></i> ${message}
+                            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </c:if>
 
-                    <form action="${pageContext.request.contextPath}/login" method="post">
+                    <c:if test="${not empty error}">
+                        <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> ${error}
+                            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </c:if>
+
+                    <form action="${pageContext.request.contextPath}/login" method="post" novalidate>
                         <div class="mb-3">
-                            <label for="account" class="form-label fw-semibold">Tài khoản / Email</label>
+                            <label for="account" class="form-label fw-semibold">Tài khoản / Email <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
                                 <input type="text" class="form-control" id="account" name="account" 
-                                       placeholder="Username hoặc email" required autofocus>
+                                       value="${account}" placeholder="Username hoặc email" required autofocus>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="password" class="form-label fw-semibold">Mật khẩu</label>
+                            <label for="password" class="form-label fw-semibold">Mật khẩu <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
                                 <input type="password" class="form-control" id="password" name="password" 
@@ -54,7 +57,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
-                            Đăng Nhập
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Đăng Nhập
                         </button>
                     </form>
 

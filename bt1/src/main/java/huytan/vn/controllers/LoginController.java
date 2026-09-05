@@ -52,9 +52,16 @@ public class LoginController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String account = req.getParameter("account");
-        String pass = req.getParameter("password");
+        String account = req.getParameter("account") != null ? req.getParameter("account").trim() : "";
+        String pass = req.getParameter("password") != null ? req.getParameter("password") : "";
         String remember = req.getParameter("remember");
+
+        if (account.isEmpty() || pass.isEmpty()) {
+            req.setAttribute("error", "Vui lòng nhập đầy đủ tài khoản và mật khẩu!");
+            req.setAttribute("account", account);
+            req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+            return;
+        }
 
         User user = userService.login(account, pass);
         if (user != null) {
@@ -70,13 +77,12 @@ public class LoginController extends HttpServlet {
 
             redirectByRole(user, req, resp);
         } else {
-            req.setAttribute("error", "Tài khoản/mật khẩu sai hoặc tài khoản chưa kích hoạt OTP!");
+            req.setAttribute("error", "Tài khoản/mật khẩu sai hoặc tài khoản chưa kích hoạt!");
+            req.setAttribute("account", account);
             req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
         }
     }
-
     private void redirectByRole(User user, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-
         if (user.getRoleid() == 1) {
             resp.sendRedirect(req.getContextPath() + "/admin/products");
         } else {

@@ -16,47 +16,60 @@
                         Tạo tài khoản mới để nhận mã OTP kích hoạt qua Email.
                     </p>
 
-                    <c:if test="${error != null}">
+                    <c:if test="${not empty error}">
                         <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
                             <i class="bi bi-exclamation-triangle-fill me-1"></i> ${error}
                             <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </c:if>
 
-                    <form action="${pageContext.request.contextPath}/register" method="post">
+                    <form action="${pageContext.request.contextPath}/register" method="post" novalidate>
                         <div class="mb-3">
-                            <label for="username" class="form-label fw-semibold">Tên đăng nhập</label>
+                            <label for="username" class="form-label fw-semibold">Tên đăng nhập <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
                                 <input type="text" class="form-control" id="username" name="username" 
-                                       placeholder="Nhập username" required autofocus>
+                                       value="${username}" minlength="3" maxlength="50"
+                                       pattern="^[a-zA-Z0-9_.]+$"
+                                       placeholder="Chữ cái, số hoặc dấu gạch dưới" required autofocus>
                             </div>
+                            <div class="form-text text-muted small">Tối thiểu 3 ký tự, không chứa dấu cách hoặc ký tự đặc biệt.</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold">Email nhận OTP</label>
+                            <label for="email" class="form-label fw-semibold">Email nhận OTP <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
                                 <input type="email" class="form-control" id="email" name="email" 
-                                       placeholder="name@example.com" required>
+                                       value="${email}" placeholder="name@example.com" required>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="fullname" class="form-label fw-semibold">Họ và tên</label>
+                            <label for="fullname" class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-card-text"></i></span>
                                 <input type="text" class="form-control" id="fullname" name="fullname" 
+                                       value="${fullname}" minlength="2" maxlength="100"
                                        placeholder="Nguyễn Văn A" required>
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label for="password" class="form-label fw-semibold">Mật khẩu</label>
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-semibold">Mật khẩu <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
                                 <input type="password" class="form-control" id="password" name="password" 
-                                       placeholder="Nhập mật khẩu an toàn" required>
+                                       minlength="6" placeholder="Tối thiểu 6 ký tự" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirmPassword" class="form-label fw-semibold">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-shield-lock"></i></span>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
+                                       minlength="6" placeholder="Nhập lại mật khẩu" required>
                             </div>
                         </div>
 

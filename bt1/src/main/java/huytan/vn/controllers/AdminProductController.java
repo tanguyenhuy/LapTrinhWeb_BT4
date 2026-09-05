@@ -21,31 +21,42 @@ import huytan.vn.util.Constant;
         "/admin/product/edit", "/admin/product/update", "/admin/product/delete" })
 public class AdminProductController extends HttpServlet {
 
-	private static final long serialVersionUID = 1L;
-	private IProductService productService = new ProductServiceImpl();
+    private static final long serialVersionUID = 1L;
+    private IProductService productService = new ProductServiceImpl();
     private ICategoryService categoryService = new CategoryServiceImpl();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String url = req.getRequestURI();
+        
         if (url.contains("/admin/products")) {
             List<Product> list = productService.findAll();
             req.setAttribute("listproduct", list);
             req.getRequestDispatcher("/views/admin/product-list.jsp").forward(req, resp);
         } else if (url.contains("/admin/product/add")) {
-            List<Category> categories = categoryService.findAll();
-            req.setAttribute("categories", categories);
+            req.setAttribute("categories", categoryService.findAll());
             req.getRequestDispatcher("/views/admin/product-add.jsp").forward(req, resp);
         } else if (url.contains("/admin/product/edit")) {
-            int id = Integer.parseInt(req.getParameter("id"));
-            Product product = productService.findById(id);
-            List<Category> categories = categoryService.findAll();
-            req.setAttribute("product", product);
-            req.setAttribute("categories", categories);
-            req.getRequestDispatcher("/views/admin/product-edit.jsp").forward(req, resp);
+            try {
+                int id = Integer.parseInt(req.getParameter("id"));
+                Product product = productService.findById(id);
+                if (product == null) {
+                    resp.sendRedirect(req.getContextPath() + "/admin/products");
+                    return;
+                }
+                req.setAttribute("product", product);
+                req.setAttribute("categories", categoryService.findAll());
+                req.getRequestDispatcher("/views/admin/product-edit.jsp").forward(req, resp);
+            } catch (NumberFormatException e) {
+                resp.sendRedirect(req.getContextPath() + "/admin/products");
+            }
         } else if (url.contains("/admin/product/delete")) {
-            int id = Integer.parseInt(req.getParameter("id"));
-            productService.delete(id);
+            try {
+                int id = Integer.parseInt(req.getParameter("id"));
+                productService.delete(id);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
             resp.sendRedirect(req.getContextPath() + "/admin/products");
         }
     }
@@ -55,16 +66,110 @@ public class AdminProductController extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         String url = req.getRequestURI();
 
-        String name = req.getParameter("productName");
-        double price = Double.parseDouble(req.getParameter("price"));
-        int quantity = Integer.parseInt(req.getParameter("quantity"));
-        String description = req.getParameter("description");
-        int status = Integer.parseInt(req.getParameter("status"));
-        int categoryId = Integer.parseInt(req.getParameter("categoryId"));
+        boolean isUpdate = url.contains("/admin/product/update");
+
+        String name = req.getParameter("productName") != null ? req.getParameter("productName").trim() : "";
+        String priceStr = req.getParameter("price") != null ? req.getParameter("price").trim() : "";
+        String quantityStr = req.getParameter("quantity") != null ? req.getParameter("quantity").trim() : "";
+        String categoryIdStr = req.getParameter("categoryId") != null ? req.getParameter("categoryId").trim() : "";
+        String description = req.getParameter("description") != null ? req.getParameter("description").trim() : "";
+        String statusStr = req.getParameter("status");
+
+        if (name.isEmpty() || priceStr.isEmpty() || quantityStr.isEmpty() || categoryIdStr.isEmpty()) {
+            returnWithError(req, resp, "Vui lòng nhập đầy đủ các mục đánh dấu sao (*)", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+            return;
+        }
+
+        double price;
+        int quantity;
+        int categoryId;
+        int status = 1;
+
+        try {
+            price = Double.parseDouble(priceStr);
+            quantity = Integer.parseInt(quantityStr);
+            categoryId = Integer.parseInt(categoryIdStr);
+            if (statusStr != null) {
+                status = Integer.parseInt(statusStr);
+            }
+        } catch (NumberFormatException e) {
+            returnWithError(req, resp, "Giá bán và số lượng phải ở định dạng số hợp lệ!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+            return;
+        }
+
+        if (price <= 0) {
+            returnWithError(req, resp, "Giá bán sản phẩm phải lớn hơn 0 VNĐ!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+            return;
+        }
+
+        if (quantity < 0) {
+            returnWithError(req, resp, "Số lượng sản phẩm trong kho không được là số âm!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+            return;
+        }
 
         Category category = categoryService.findById(categoryId);
+        if (category == null) {
+            returnWithError(req, resp, "Danh mục đã chọn không tồn tại trong hệ thống!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+            return;
+        }
 
-        if (url.contains("/admin/product/insert")) {
+        Part part = req.getPart("imageFile");
+        String uploadedImagePath = null;
+
+        if (part != null && part.getSize() > 0) {
+            if (part.getSize() > 5 * 1024 * 1024) {
+                returnWithError(req, resp, "Dung lượng ảnh tải lên không được vượt quá 5MB!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+                return;
+            }
+
+            String submittedName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
+            int dotIdx = submittedName.lastIndexOf(".");
+            if (dotIdx == -1) {
+                returnWithError(req, resp, "File tải lên không có phần mở rộng hợp lệ!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+                return;
+            }
+
+            String ext = submittedName.substring(dotIdx).toLowerCase();
+            if (!ext.equals(".jpg") && !ext.equals(".jpeg") && !ext.equals(".png") && !ext.equals(".webp") && !ext.equals(".gif")) {
+                returnWithError(req, resp, "Chỉ chấp nhận file định dạng ảnh (.jpg, .jpeg, .png, .webp, .gif)!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+                return;
+            }
+
+            String fileName = System.currentTimeMillis() + ext;
+            File uploadDir = new File(Constant.DIR + "/product");
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            part.write(Constant.DIR + "/product/" + fileName);
+            uploadedImagePath = "product/" + fileName;
+        }
+
+        if (isUpdate) {
+            try {
+                int productId = Integer.parseInt(req.getParameter("productId"));
+                Product product = productService.findById(productId);
+                if (product == null) {
+                    resp.sendRedirect(req.getContextPath() + "/admin/products");
+                    return;
+                }
+
+                product.setProductName(name);
+                product.setPrice(price);
+                product.setQuantity(quantity);
+                product.setDescription(description);
+                product.setStatus(status);
+                product.setCategory(category);
+
+                if (uploadedImagePath != null) {
+                    product.setImage(uploadedImagePath);
+                }
+
+                productService.update(product);
+            } catch (NumberFormatException e) {
+                resp.sendRedirect(req.getContextPath() + "/admin/products");
+                return;
+            }
+        } else {
             Product product = new Product();
             product.setProductName(name);
             product.setPrice(price);
@@ -72,46 +177,60 @@ public class AdminProductController extends HttpServlet {
             product.setDescription(description);
             product.setStatus(status);
             product.setCategory(category);
+            product.setImage(uploadedImagePath);
 
-            Part part = req.getPart("imageFile");
-            if (part != null && part.getSize() > 0) {
-                String originalFileName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
-                String ext = originalFileName.substring(originalFileName.lastIndexOf("."));
-                String fileName = System.currentTimeMillis() + ext;
-                
-                File uploadDir = new File(Constant.DIR + "/product");
-                if (!uploadDir.exists()) uploadDir.mkdirs();
-                
-                part.write(Constant.DIR + "/product/" + fileName);
-                product.setImage("product/" + fileName);
-            }
             productService.insert(product);
-            resp.sendRedirect(req.getContextPath() + "/admin/products");
+        }
 
-        } else if (url.contains("/admin/product/update")) {
-            int id = Integer.parseInt(req.getParameter("productId"));
-            Product product = productService.findById(id);
-            product.setProductName(name);
-            product.setPrice(price);
-            product.setQuantity(quantity);
-            product.setDescription(description);
-            product.setStatus(status);
-            product.setCategory(category);
+        resp.sendRedirect(req.getContextPath() + "/admin/products");
+    }
 
-            Part part = req.getPart("imageFile");
-            if (part != null && part.getSize() > 0) {
-                String originalFileName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
-                String ext = originalFileName.substring(originalFileName.lastIndexOf("."));
-                String fileName = System.currentTimeMillis() + ext;
-                
-                File uploadDir = new File(Constant.DIR + "/product");
-                if (!uploadDir.exists()) uploadDir.mkdirs();
+    private void returnWithError(HttpServletRequest req, HttpServletResponse resp, String errorMsg,
+                                 boolean isUpdate, String name, String priceStr, String quantityStr, 
+                                 String categoryIdStr, String description, String statusStr) 
+            throws ServletException, IOException {
+        
+        req.setAttribute("error", errorMsg);
+        req.setAttribute("categories", categoryService.findAll());
 
-                part.write(Constant.DIR + "/product/" + fileName);
-                product.setImage("product/" + fileName);
-            }
-            productService.update(product);
-            resp.sendRedirect(req.getContextPath() + "/admin/products");
+        Product p = new Product();
+        p.setProductName(name);
+        p.setDescription(description);
+
+        try {
+            p.setPrice(Double.parseDouble(priceStr));
+        } catch (Exception ignored) {}
+
+        try {
+            p.setQuantity(Integer.parseInt(quantityStr));
+        } catch (Exception ignored) {}
+
+        try {
+            p.setStatus(Integer.parseInt(statusStr));
+        } catch (Exception ignored) {
+            p.setStatus(1);
+        }
+
+        try {
+            int catId = Integer.parseInt(categoryIdStr);
+            Category c = categoryService.findById(catId);
+            p.setCategory(c);
+        } catch (Exception ignored) {}
+
+        if (isUpdate) {
+            try {
+                int id = Integer.parseInt(req.getParameter("productId"));
+                p.setProductId(id);
+                Product old = productService.findById(id);
+                if (old != null) {
+                    p.setImage(old.getImage());
+                }
+            } catch (Exception ignored) {}
+            req.setAttribute("product", p);
+            req.getRequestDispatcher("/views/admin/product-edit.jsp").forward(req, resp);
+        } else {
+            req.setAttribute("product", p);
+            req.getRequestDispatcher("/views/admin/product-add.jsp").forward(req, resp);
         }
     }
 }

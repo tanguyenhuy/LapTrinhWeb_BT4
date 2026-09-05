@@ -20,14 +20,21 @@
                         <i class="bi bi-person-gear me-2"></i>THÔNG TIN TÀI KHOẢN
                     </h4>
 
-                    <c:if test="${message != null}">
+                    <c:if test="${not empty error}">
+                        <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> ${error}
+                            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </c:if>
+
+                    <c:if test="${not empty message}">
                         <div class="alert alert-success alert-dismissible fade show py-2 small" role="alert">
                             <i class="bi bi-check-circle-fill me-1"></i> ${message}
                             <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </c:if>
 
-                    <form action="${pageContext.request.contextPath}/home/profile" method="post" enctype="multipart/form-data">
+                    <form action="${pageContext.request.contextPath}/home/profile" method="post" enctype="multipart/form-data" novalidate>
                         
                         <div class="text-center mb-4">
                             <div class="d-inline-block position-relative">
@@ -35,7 +42,7 @@
                                     <c:when test="${user.images != null && user.images.startsWith('http')}">
                                         <img src="${user.images}" alt="Avatar" class="rounded-circle shadow-sm border border-3 border-primary-subtle" style="width: 125px; height: 125px; object-fit: cover;">
                                     </c:when>
-                                    <c:when test="${user.images != null && !empty user.images}">
+                                    <c:when test="${user.images != null && not empty user.images}">
                                         <img src="${pageContext.request.contextPath}/image?fname=${user.images}" alt="Avatar" class="rounded-circle shadow-sm border border-3 border-primary-subtle" style="width: 125px; height: 125px; object-fit: cover;">
                                     </c:when>
                                     <c:otherwise>
@@ -51,6 +58,7 @@
                                 <span class="input-group-text bg-light"><i class="bi bi-camera"></i></span>
                                 <input class="form-control" type="file" id="imageFile" name="imageFile" accept="image/*">
                             </div>
+                            <div class="form-text text-muted small">Chấp nhận JPG, PNG, WEBP (Tối đa 5MB).</div>
                         </div>
 
                         <div class="mb-3">
@@ -70,10 +78,11 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="fullname" class="form-label fw-semibold">Họ và tên</label>
+                            <label for="fullname" class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-card-text"></i></span>
-                                <input type="text" class="form-control" id="fullname" name="fullname" value="${user.fullname}" required>
+                                <input type="text" class="form-control" id="fullname" name="fullname" 
+                                       value="${user.fullname}" minlength="2" maxlength="100" required>
                             </div>
                         </div>
 
@@ -81,8 +90,11 @@
                             <label for="phone" class="form-label fw-semibold">Số điện thoại</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
-                                <input type="text" class="form-control" id="phone" name="phone" value="${user.phone}" placeholder="Nhập số điện thoại...">
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       value="${user.phone}" placeholder="VD: 0912345678" 
+                                       pattern="(03|05|07|08|09)[0-9]{8}" maxlength="10">
                             </div>
+                            <div class="form-text text-muted small">Gồm 10 chữ số, bắt đầu bằng 03, 05, 07, 08 hoặc 09.</div>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center pt-2">

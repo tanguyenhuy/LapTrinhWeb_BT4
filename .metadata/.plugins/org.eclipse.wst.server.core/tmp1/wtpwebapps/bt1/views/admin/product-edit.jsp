@@ -22,7 +22,14 @@
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form action="${pageContext.request.contextPath}/admin/product/update" method="post" enctype="multipart/form-data">
+                    <c:if test="${not empty error}">
+                        <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>${error}
+                            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </c:if>
+
+                    <form action="${pageContext.request.contextPath}/admin/product/update" method="post" enctype="multipart/form-data" novalidate>
                         <input type="hidden" name="productId" value="${product.productId}">
 
                         <div class="mb-3">
@@ -40,7 +47,7 @@
                                 <span class="input-group-text bg-light"><i class="bi bi-folder2-open"></i></span>
                                 <select class="form-select" id="categoryId" name="categoryId" required>
                                     <c:forEach items="${categories}" var="c">
-                                        <option value="${c.categoryid}" ${c.categoryid == product.category.categoryid ? 'selected' : ''}>
+                                        <option value="${c.categoryid}" <c:if test="${not empty product.category && c.categoryid == product.category.categoryid}">selected</c:if>>
                                             ${c.categoryname}
                                         </option>
                                     </c:forEach>
@@ -54,7 +61,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="bi bi-cash"></i></span>
                                     <input type="number" step="any" class="form-control" id="price" name="price" 
-                                           value="${product.price}" min="0" required>
+                                           value="${product.price}" min="1000" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -79,7 +86,7 @@
                                     <c:when test="${product.image != null && product.image.startsWith('http')}">
                                         <img src="${product.image}" alt="${product.productName}" class="rounded border shadow-sm" style="width: 120px; height: 100px; object-fit: cover;">
                                     </c:when>
-                                    <c:when test="${product.image != null && !empty product.image}">
+                                    <c:when test="${product.image != null && not empty product.image}">
                                         <img src="${pageContext.request.contextPath}/image?fname=${product.image}" alt="${product.productName}" class="rounded border shadow-sm" style="width: 120px; height: 100px; object-fit: cover;">
                                     </c:when>
                                     <c:otherwise>
@@ -92,6 +99,7 @@
                                 <span class="input-group-text bg-light"><i class="bi bi-upload"></i></span>
                                 <input class="form-control" type="file" id="imageFile" name="imageFile" accept="image/*">
                             </div>
+                            <div class="form-text text-muted small">Chấp nhận JPG, PNG, WEBP, GIF (Tối đa 5MB).</div>
                         </div>
 
                         <div class="mb-4">

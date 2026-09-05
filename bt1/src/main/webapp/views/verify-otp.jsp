@@ -14,26 +14,31 @@
                     </h4>
                     <p class="text-muted text-center small mb-3">
                         Hệ thống đã gửi mã xác thực gồm 6 chữ số đến email: <br>
-                        <span class="fw-bold text-dark">${sessionScope.verify_email}</span>
+                        <span class="fw-bold text-dark">
+                            ${not empty email ? email : (not empty sessionScope.verify_email ? sessionScope.verify_email : sessionScope.verifyEmail)}
+                        </span>
                     </p>
 
-                    <c:if test="${error != null}">
+                    <c:if test="${not empty error}">
                         <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
                             <i class="bi bi-exclamation-triangle-fill me-1"></i> ${error}
                             <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </c:if>
 
-                    <form action="${pageContext.request.contextPath}/verify-otp" method="post">
-                        <input type="hidden" name="email" value="${sessionScope.verify_email}">
+                    <form action="${pageContext.request.contextPath}/verify-otp" method="post" novalidate>
+                        <input type="hidden" name="email" 
+                               value="${not empty email ? email : (not empty sessionScope.verify_email ? sessionScope.verify_email : sessionScope.verifyEmail)}">
 
                         <div class="mb-4">
-                            <label for="otp" class="form-label fw-semibold">Nhập mã OTP</label>
+                            <label for="otp" class="form-label fw-semibold">Nhập mã OTP <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
                                 <input type="text" class="form-control text-center fw-bold fs-4" id="otp" name="otp" 
-                                       maxlength="6" placeholder="000000" style="letter-spacing: 6px;" required autofocus>
+                                       value="${otp}" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" 
+                                       autocomplete="one-time-code" placeholder="000000" style="letter-spacing: 6px;" required autofocus>
                             </div>
+                            <div class="form-text text-muted small text-center mt-1">Mã xác thực gồm 6 chữ số.</div>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">

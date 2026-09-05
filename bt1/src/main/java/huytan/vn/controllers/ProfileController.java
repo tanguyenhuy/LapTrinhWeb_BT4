@@ -20,6 +20,8 @@ public class ProfileController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private IUserService userService = new UserServiceImpl();
 
+    private static final String PHONE_REGEX = "^(03|05|07|08|09)[0-9]{8}$";
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
@@ -30,6 +32,10 @@ public class ProfileController extends HttpServlet {
 
         User userSession = (User) session.getAttribute("account");
         User user = userService.findById(userSession.getId());
+        if (user == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
 
         req.setAttribute("user", user);
         req.getRequestDispatcher("/views/profile.jsp").forward(req, resp);
@@ -48,23 +54,59 @@ public class ProfileController extends HttpServlet {
 
         User userSession = (User) session.getAttribute("account");
         User user = userService.findById(userSession.getId());
+        if (user == null) {
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
 
-        String fullname = req.getParameter("fullname");
-        String phone = req.getParameter("phone");
+        String fullname = req.getParameter("fullname") != null ? req.getParameter("fullname").trim() : "";
+        String phone = req.getParameter("phone") != null ? req.getParameter("phone").trim() : "";
 
         user.setFullname(fullname);
         user.setPhone(phone);
 
+        if (fullname.isEmpty()) {
+            returnWithError(req, resp, "Họ và tên không được để trống!", user);
+            return;
+        }
+        if (fullname.length() < 2 || fullname.length() > 100) {
+            returnWithError(req, resp, "Họ và tên phải có độ dài từ 2 đến 100 ký tự!", user);
+            return;
+        }
+
+        if (!phone.isEmpty() && !phone.matches(PHONE_REGEX)) {
+            returnWithError(req, resp, "Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 chữ số (VD: 0912345678).", user);
+            return;
+        }
+
         Part part = req.getPart("imageFile");
         if (part != null && part.getSize() > 0) {
+            if (part.getSize() > 5 * 1024 * 1024) {
+                returnWithError(req, resp, "Dung lượng ảnh tải lên không được vượt quá 5MB!", user);
+                return;
+            }
+
             String originalFileName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
-            String ext = originalFileName.substring(originalFileName.lastIndexOf("."));
-            String fileName = "user_" + System.currentTimeMillis() + ext;
+            int dotIdx = originalFileName.lastIndexOf(".");
+            if (dotIdx == -1) {
+                returnWithError(req, resp, "File tải lên không có phần mở rộng hợp lệ!", user);
+                return;
+            }
+
+            String ext = originalFileName.substring(dotIdx).toLowerCase();
+            if (!ext.equals(".jpg") && !ext.equals(".jpeg") && !ext.equals(".png") && !ext.equals(".webp") && !ext.equals(".gif")) {
+                returnWithError(req, resp, "Chỉ chấp nhận file định dạng ảnh (.jpg, .jpeg, .png, .webp, .gif)!", user);
+                return;
+            }
 
             File uploadDir = new File(Constant.DIR + File.separator + "avatar");
-            if (!uploadDir.exists()) uploadDir.mkdirs();
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
 
-            if (user.getImages() != null && !user.getImages().startsWith("http")) {
+            if (user.getImages() != null && !user.getImages().startsWith("http")
+                    && !user.getImages().equals("avatar.png")
+                    && !user.getImages().contains("default")) {
                 try {
                     Path oldPath = Paths.get(Constant.DIR + File.separator + user.getImages());
                     Files.deleteIfExists(oldPath);
@@ -73,16 +115,23 @@ public class ProfileController extends HttpServlet {
                 }
             }
 
+            String fileName = "user_" + System.currentTimeMillis() + ext;
             part.write(uploadDir.getAbsolutePath() + File.separator + fileName);
             user.setImages("avatar/" + fileName);
         }
 
         userService.update(user);
-
         session.setAttribute("account", user);
 
         req.setAttribute("user", user);
         req.setAttribute("message", "Cập nhật thông tin tài khoản thành công!");
+        req.getRequestDispatcher("/views/profile.jsp").forward(req, resp);
+    }
+
+    private void returnWithError(HttpServletRequest req, HttpServletResponse resp, String errorMsg, User user)
+            throws ServletException, IOException {
+        req.setAttribute("error", errorMsg);
+        req.setAttribute("user", user);
         req.getRequestDispatcher("/views/profile.jsp").forward(req, resp);
     }
 }

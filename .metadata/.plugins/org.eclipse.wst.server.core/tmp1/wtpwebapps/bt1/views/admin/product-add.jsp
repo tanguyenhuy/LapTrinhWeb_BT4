@@ -2,7 +2,7 @@
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 
 <head>
-    <title>Thêm Sản Phẩm Mới</title>
+    <title>Thêm Mới Sản Phẩm</title>
 </head>
 <body>
     <nav aria-label="breadcrumb" class="mb-4">
@@ -18,18 +18,24 @@
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-header bg-white py-3 border-bottom">
                     <h5 class="card-title fw-bold text-primary mb-0">
-                        <i class="bi bi-plus-square me-2"></i>THÊM SẢN PHẨM MỚI
+                        <i class="bi bi-plus-circle me-2"></i>THÊM MỚI SẢN PHẨM
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form action="${pageContext.request.contextPath}/admin/product/insert" method="post" enctype="multipart/form-data">
-                        
+                    <c:if test="${not empty error}">
+                        <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>${error}
+                            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </c:if>
+
+                    <form action="${pageContext.request.contextPath}/admin/product/add" method="post" enctype="multipart/form-data" novalidate>
                         <div class="mb-3">
                             <label for="productName" class="form-label fw-semibold">Tên sản phẩm <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-box-seam"></i></span>
                                 <input type="text" class="form-control" id="productName" name="productName" 
-                                       placeholder="Ví dụ: iPhone 15 Pro Max..." required autofocus>
+                                       value="${product.productName}" placeholder="Nhập tên sản phẩm" required autofocus>
                             </div>
                         </div>
 
@@ -38,9 +44,11 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-folder2-open"></i></span>
                                 <select class="form-select" id="categoryId" name="categoryId" required>
-                                    <option value="" disabled selected>-- Chọn danh mục --</option>
+                                    <option value="" disabled <c:if test="${empty product.category}">selected</c:if>>-- Chọn danh mục --</option>
                                     <c:forEach items="${categories}" var="c">
-                                        <option value="${c.categoryid}">${c.categoryname}</option>
+                                        <option value="${c.categoryid}" <c:if test="${not empty product.category && c.categoryid == product.category.categoryid}">selected</c:if>>
+                                            ${c.categoryname}
+                                        </option>
                                     </c:forEach>
                                 </select>
                             </div>
@@ -48,47 +56,47 @@
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label for="price" class="form-label fw-semibold">Đơn giá (VNĐ) <span class="text-danger">*</span></label>
+                                <label for="price" class="form-label fw-semibold">Giá bán (VNĐ) <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="bi bi-cash"></i></span>
-                                    <input type="number" class="form-control" id="price" name="price" 
-                                           placeholder="0" min="0" step="1000" required>
+                                    <input type="number" step="any" class="form-control" id="price" name="price" 
+                                           value="${product.price}" min="1000" placeholder="Tối thiểu 1,000" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label for="quantity" class="form-label fw-semibold">Số lượng trong kho <span class="text-danger">*</span></label>
+                                <label for="quantity" class="form-label fw-semibold">Số lượng kho <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="bi bi-hash"></i></span>
                                     <input type="number" class="form-control" id="quantity" name="quantity" 
-                                           placeholder="0" min="0" required>
+                                           value="${not empty product.quantity ? product.quantity : 0}" min="0" placeholder="Nhập số lượng" required>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="description" class="form-label fw-semibold">Mô tả sản phẩm</label>
-                            <textarea class="form-control" id="description" name="description" rows="4" 
-                                      placeholder="Mô tả thông tin chi tiết, cấu hình sản phẩm..."></textarea>
+                            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Mô tả chi tiết sản phẩm...">${product.description}</textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label for="imageFile" class="form-label fw-semibold">Hình ảnh sản phẩm <span class="text-danger">*</span></label>
+                            <label for="imageFile" class="form-label fw-semibold">Ảnh sản phẩm <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light"><i class="bi bi-image"></i></span>
+                                <span class="input-group-text bg-light"><i class="bi bi-upload"></i></span>
                                 <input class="form-control" type="file" id="imageFile" name="imageFile" accept="image/*" required>
                             </div>
+                            <div class="form-text text-muted small">Chấp nhận JPG, PNG, WEBP, GIF (Tối đa 5MB).</div>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label fw-semibold d-block">Trạng thái kinh doanh</label>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="ston" name="status" value="1" checked>
+                                <input class="form-check-input" type="radio" id="ston" name="status" value="1" ${product.status != 0 ? 'checked' : ''}>
                                 <label class="form-check-label" for="ston">
                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Hoạt động</span>
                                 </label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="stoff" name="status" value="0">
+                                <input class="form-check-input" type="radio" id="stoff" name="status" value="0" ${product.status == 0 ? 'checked' : ''}>
                                 <label class="form-check-label" for="stoff">
                                     <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">Khóa</span>
                                 </label>
@@ -97,10 +105,10 @@
 
                         <div class="d-flex justify-content-between align-items-center pt-3 border-top">
                             <a href="${pageContext.request.contextPath}/admin/products" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left me-1"></i> Quay lại
+                                <i class="bi bi-arrow-left me-1"></i> Hủy bỏ
                             </a>
-                            <button type="submit" class="btn btn-success px-4 fw-semibold">
-                                <i class="bi bi-check2-circle me-1"></i> Thêm sản phẩm
+                            <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                                <i class="bi bi-plus-circle me-1"></i> Thêm sản phẩm
                             </button>
                         </div>
                     </form>

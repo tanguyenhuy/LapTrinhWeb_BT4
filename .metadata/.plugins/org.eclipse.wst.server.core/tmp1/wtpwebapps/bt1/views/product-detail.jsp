@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 
 <head>
     <title>${p.productName} - Chi Tiết Sản Phẩm</title>
@@ -22,8 +23,11 @@
                         <c:when test="${p.image != null && p.image.startsWith('http')}">
                             <img src="${p.image}" alt="${p.productName}" class="img-fluid rounded-3 shadow-sm border" style="max-height: 380px; width: 100%; object-fit: cover;">
                         </c:when>
-                        <c:otherwise>
+                        <c:when test="${p.image != null && not empty p.image}">
                             <img src="${pageContext.request.contextPath}/image?fname=${p.image}" alt="${p.productName}" class="img-fluid rounded-3 shadow-sm border" style="max-height: 380px; width: 100%; object-fit: cover;">
+                        </c:when>
+                        <c:otherwise>
+                            <img src="https://placehold.co/400x350?text=No+Image" alt="${p.productName}" class="img-fluid rounded-3 shadow-sm border" style="max-height: 380px; width: 100%; object-fit: cover;">
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -31,7 +35,7 @@
                 <div class="col-12 col-md-7">
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
-                            <i class="bi bi-folder2-open me-1"></i>${p.category.categoryname}
+                            <i class="bi bi-folder2-open me-1"></i>${not empty p.category ? p.category.categoryname : 'Chưa phân loại'}
                         </span>
                         <c:choose>
                             <c:when test="${p.quantity > 0}">
@@ -51,7 +55,9 @@
 
                     <div class="p-3 bg-light rounded-3 mb-3">
                         <span class="text-muted small d-block">Giá bán chính thức:</span>
-                        <span class="text-danger fw-bold fs-3">${p.price} VNĐ</span>
+                        <span class="text-danger fw-bold fs-3">
+                            <fmt:formatNumber value="${p.price}" pattern="#,###" /> VNĐ
+                        </span>
                     </div>
 
                     <div class="mb-4">

@@ -1,0 +1,246 @@
+package huytan.vn.controllers;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.List;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import huytan.vn.entities.Category;
+import huytan.vn.entities.Product;
+import huytan.vn.services.ICategoryService;
+import huytan.vn.services.IProductService;
+import huytan.vn.service.impl.CategoryServiceImpl;
+import huytan.vn.service.impl.ProductServiceImpl;
+import huytan.vn.util.Constant;
+
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, maxFileSize = 1024 * 1024 * 10, maxRequestSize = 1024 * 1024 * 50)
+@WebServlet(urlPatterns = { "/admin/products", "/admin/product/add", "/admin/product/insert",
+        "/admin/product/edit", "/admin/product/update", "/admin/product/delete" })
+public class AdminProductController extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
+    private IProductService productService = new ProductServiceImpl();
+    private ICategoryService categoryService = new CategoryServiceImpl();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String url = req.getRequestURI();
+        
+        if (url.contains("/admin/products")) {
+            List<Product> list = productService.findAll();
+            req.setAttribute("listproduct", list);
+            req.getRequestDispatcher("/views/admin/product-list.jsp").forward(req, resp);
+        } else if (url.contains("/admin/product/add")) {
+            req.setAttribute("categories", categoryService.findAll());
+            req.getRequestDispatcher("/views/admin/product-add.jsp").forward(req, resp);
+        } else if (url.contains("/admin/product/edit")) {
+            try {
+                int id = Integer.parseInt(req.getParameter("id"));
+                Product product = productService.findById(id);
+                if (product == null) {
+                    resp.sendRedirect(req.getContextPath() + "/admin/products");
+                    return;
+                }
+                req.setAttribute("product", product);
+                req.setAttribute("categories", categoryService.findAll());
+                req.getRequestDispatcher("/views/admin/product-edit.jsp").forward(req, resp);
+            } catch (NumberFormatException e) {
+                resp.sendRedirect(req.getContextPath() + "/admin/products");
+            }
+        } else if (url.contains("/admin/product/delete")) {
+            try {
+                int id = Integer.parseInt(req.getParameter("id"));
+                productService.delete(id);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+            resp.sendRedirect(req.getContextPath() + "/admin/products");
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        String url = req.getRequestURI();
+
+        boolean isUpdate = url.contains("/admin/product/update");
+
+        // 1. Lấy dữ liệu dạng chuỗi để kiểm tra rỗng
+        String name = req.getParameter("productName") != null ? req.getParameter("productName").trim() : "";
+        String priceStr = req.getParameter("price") != null ? req.getParameter("price").trim() : "";
+        String quantityStr = req.getParameter("quantity") != null ? req.getParameter("quantity").trim() : "";
+        String categoryIdStr = req.getParameter("categoryId") != null ? req.getParameter("categoryId").trim() : "";
+        String description = req.getParameter("description") != null ? req.getParameter("description").trim() : "";
+        String statusStr = req.getParameter("status");
+
+        // 2. Validate các trường bắt buộc
+        if (name.isEmpty() || priceStr.isEmpty() || quantityStr.isEmpty() || categoryIdStr.isEmpty()) {
+            returnWithError(req, resp, "Vui lòng nhập đầy đủ các mục đánh dấu sao (*)", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+            return;
+        }
+
+        // 3. Validate kiểu số: Giá bán và Số lượng kho
+        double price;
+        int quantity;
+        int categoryId;
+        int status = 1;
+
+        try {
+            price = Double.parseDouble(priceStr);
+            quantity = Integer.parseInt(quantityStr);
+            categoryId = Integer.parseInt(categoryIdStr);
+            if (statusStr != null) {
+                status = Integer.parseInt(statusStr);
+            }
+        } catch (NumberFormatException e) {
+            returnWithError(req, resp, "Giá bán và số lượng phải ở định dạng số hợp lệ!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+            return;
+        }
+
+        if (price <= 0) {
+            returnWithError(req, resp, "Giá bán sản phẩm phải lớn hơn 0 VNĐ!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+            return;
+        }
+
+        if (quantity < 0) {
+            returnWithError(req, resp, "Số lượng sản phẩm trong kho không được là số âm!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+            return;
+        }
+
+        // 4. Validate danh mục tồn tại
+        Category category = categoryService.findById(categoryId);
+        if (category == null) {
+            returnWithError(req, resp, "Danh mục đã chọn không tồn tại trong hệ thống!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+            return;
+        }
+
+        // 5. Validate file ảnh tải lên
+        Part part = req.getPart("imageFile");
+        String uploadedImagePath = null;
+
+        if (part != null && part.getSize() > 0) {
+            // Giới hạn 5MB
+            if (part.getSize() > 5 * 1024 * 1024) {
+                returnWithError(req, resp, "Dung lượng ảnh tải lên không được vượt quá 5MB!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+                return;
+            }
+
+            String submittedName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
+            int dotIdx = submittedName.lastIndexOf(".");
+            if (dotIdx == -1) {
+                returnWithError(req, resp, "File tải lên không có phần mở rộng hợp lệ!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+                return;
+            }
+
+            String ext = submittedName.substring(dotIdx).toLowerCase();
+            if (!ext.equals(".jpg") && !ext.equals(".jpeg") && !ext.equals(".png") && !ext.equals(".webp") && !ext.equals(".gif")) {
+                returnWithError(req, resp, "Chỉ chấp nhận file định dạng ảnh (.jpg, .jpeg, .png, .webp, .gif)!", isUpdate, name, priceStr, quantityStr, categoryIdStr, description, statusStr);
+                return;
+            }
+
+            // Lưu file vào thư mục upload
+            String fileName = System.currentTimeMillis() + ext;
+            File uploadDir = new File(Constant.DIR + "/product");
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            part.write(Constant.DIR + "/product/" + fileName);
+            uploadedImagePath = "product/" + fileName;
+        }
+
+        // 6. Thực hiện Thêm mới hoặc Cập nhật
+        if (isUpdate) {
+            try {
+                int productId = Integer.parseInt(req.getParameter("productId"));
+                Product product = productService.findById(productId);
+                if (product == null) {
+                    resp.sendRedirect(req.getContextPath() + "/admin/products");
+                    return;
+                }
+
+                product.setProductName(name);
+                product.setPrice(price);
+                product.setQuantity(quantity);
+                product.setDescription(description);
+                product.setStatus(status);
+                product.setCategory(category);
+
+                // Nếu có ảnh mới thì cập nhật, không thì giữ nguyên ảnh cũ
+                if (uploadedImagePath != null) {
+                    product.setImage(uploadedImagePath);
+                }
+
+                productService.update(product);
+            } catch (NumberFormatException e) {
+                resp.sendRedirect(req.getContextPath() + "/admin/products");
+                return;
+            }
+        } else {
+            Product product = new Product();
+            product.setProductName(name);
+            product.setPrice(price);
+            product.setQuantity(quantity);
+            product.setDescription(description);
+            product.setStatus(status);
+            product.setCategory(category);
+            product.setImage(uploadedImagePath);
+
+            productService.insert(product);
+        }
+
+        resp.sendRedirect(req.getContextPath() + "/admin/products");
+    }
+
+    // Helper: Trả lỗi về trang form tương ứng và giữ lại dữ liệu người dùng đã gõ
+    private void returnWithError(HttpServletRequest req, HttpServletResponse resp, String errorMsg,
+                                 boolean isUpdate, String name, String priceStr, String quantityStr, 
+                                 String categoryIdStr, String description, String statusStr) 
+            throws ServletException, IOException {
+        
+        req.setAttribute("error", errorMsg);
+        req.setAttribute("categories", categoryService.findAll());
+
+        Product p = new Product();
+        p.setProductName(name);
+        p.setDescription(description);
+
+        try {
+            p.setPrice(Double.parseDouble(priceStr));
+        } catch (Exception ignored) {}
+
+        try {
+            p.setQuantity(Integer.parseInt(quantityStr));
+        } catch (Exception ignored) {}
+
+        try {
+            p.setStatus(Integer.parseInt(statusStr));
+        } catch (Exception ignored) {
+            p.setStatus(1);
+        }
+
+        try {
+            int catId = Integer.parseInt(categoryIdStr);
+            Category c = categoryService.findById(catId);
+            p.setCategory(c);
+        } catch (Exception ignored) {}
+
+        if (isUpdate) {
+            try {
+                int id = Integer.parseInt(req.getParameter("productId"));
+                p.setProductId(id);
+                Product old = productService.findById(id);
+                if (old != null) {
+                    p.setImage(old.getImage());
+                }
+            } catch (Exception ignored) {}
+            req.setAttribute("product", p);
+            req.getRequestDispatcher("/views/admin/product-edit.jsp").forward(req, resp);
+        } else {
+            req.setAttribute("product", p);
+            req.getRequestDispatcher("/views/admin/product-add.jsp").forward(req, resp);
+        }
+    }
+}

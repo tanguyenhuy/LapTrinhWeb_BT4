@@ -24,7 +24,7 @@
                         </div>
                     </c:if>
 
-                    <form action="${pageContext.request.contextPath}/reset-password" method="post">
+                    <form action="${pageContext.request.contextPath}/reset-password" method="post" novalidate>
                         <input type="hidden" name="email" value="${sessionScope.reset_email}">
 
                         <div class="mb-3">

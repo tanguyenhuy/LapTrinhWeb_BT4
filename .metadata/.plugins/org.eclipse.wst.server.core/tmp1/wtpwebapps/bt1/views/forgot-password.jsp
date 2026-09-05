@@ -16,19 +16,20 @@
                         Nhập địa chỉ email đăng ký để nhận mã xác thực OTP khôi phục mật khẩu.
                     </p>
 
-                    <c:if test="${error != null}">
-                        <div class="alert alert-danger py-2 small" role="alert">
-                            ${error}
+                    <c:if test="${not empty error}">
+                        <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> ${error}
+                            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </c:if>
 
-                    <form action="${pageContext.request.contextPath}/forgot-password" method="post">
+                    <form action="${pageContext.request.contextPath}/forgot-password" method="post" novalidate>
                         <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold">Email tài khoản</label>
+                            <label for="email" class="form-label fw-semibold">Email tài khoản <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
                                 <input type="email" class="form-control" id="email" name="email" 
-                                       placeholder="name@example.com" required autofocus>
+                                       value="${email}" placeholder="name@example.com" required autofocus>
                             </div>
                         </div>
 
