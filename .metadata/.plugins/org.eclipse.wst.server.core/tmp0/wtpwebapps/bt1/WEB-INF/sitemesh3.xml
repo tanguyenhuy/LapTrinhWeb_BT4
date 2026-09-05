@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemesh>
+
+    <mapping path="/admin/*" name="admin" decorator="/WEB-INF/decorators/admin.jsp"/>
+     
+    <mapping path="/*" name="web" decorator="/WEB-INF/decorators/web.jsp"/>
+
+    <mapping path="/image*" exclude="true" />
+    <mapping path="/assets/*" exclude="true" />
+    <mapping path="/api*" exclude="true" />
+</sitemesh>

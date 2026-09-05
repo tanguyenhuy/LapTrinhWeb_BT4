@@ -8,7 +8,6 @@ import huytan.vn.entities.User;
 import huytan.vn.services.IUserService;
 import huytan.vn.service.impl.UserServiceImpl;
 
-
 @WebServlet(urlPatterns = "/login")
 public class LoginController extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -17,9 +16,19 @@ public class LoginController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession(false);
-        if (session != null && session.getAttribute("account") != null) {
-            resp.sendRedirect(req.getContextPath() + "/home");
-            return;
+
+        if (session != null) {
+            String errorMsg = (String) session.getAttribute("error");
+            if (errorMsg != null) {
+                req.setAttribute("error", errorMsg);
+                session.removeAttribute("error");
+            }
+
+            User account = (User) session.getAttribute("account");
+            if (account != null) {
+                redirectByRole(account, req, resp);
+                return;
+            }
         }
 
         Cookie[] cookies = req.getCookies();
@@ -31,13 +40,12 @@ public class LoginController extends HttpServlet {
                     if (user != null && user.getStatus() == 1) {
                         session = req.getSession(true);
                         session.setAttribute("account", user);
-                        resp.sendRedirect(req.getContextPath() + "/home");
+                        redirectByRole(user, req, resp);
                         return;
                     }
                 }
             }
         }
-
 
         req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
     }
@@ -50,22 +58,29 @@ public class LoginController extends HttpServlet {
 
         User user = userService.login(account, pass);
         if (user != null) {
-     
             HttpSession session = req.getSession(true);
             session.setAttribute("account", user);
 
-
             if ("on".equals(remember)) {
                 Cookie cookie = new Cookie("username", user.getUsername());
-                cookie.setMaxAge(30 * 60); 
+                cookie.setMaxAge(30 * 60);
                 cookie.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
                 resp.addCookie(cookie);
             }
 
-            resp.sendRedirect(req.getContextPath() + "/home");
+            redirectByRole(user, req, resp);
         } else {
             req.setAttribute("error", "Tài khoản/mật khẩu sai hoặc tài khoản chưa kích hoạt OTP!");
             req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+        }
+    }
+
+    private void redirectByRole(User user, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+        if (user.getRoleid() == 1) {
+            resp.sendRedirect(req.getContextPath() + "/admin/products");
+        } else {
+            resp.sendRedirect(req.getContextPath() + "/home");
         }
     }
 }

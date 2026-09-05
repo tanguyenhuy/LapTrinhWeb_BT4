@@ -10,6 +10,11 @@ public class UserServiceImpl implements IUserService {
     private IUserDao userDao = new UserDaoImpl();
 
     @Override
+    public void insert(User user) {
+        userDao.insert(user);
+    }
+
+    @Override
     public boolean register(User user) {
         if (userDao.findByUsername(user.getUsername()) != null || userDao.findByEmail(user.getEmail()) != null) {
             return false;
@@ -20,7 +25,6 @@ public class UserServiceImpl implements IUserService {
         user.setRoleid(3); 
         userDao.insert(user);
 
-        
         String body = "<h3>Mã OTP kích hoạt tài khoản của bạn là: <b style='color:red;'>" + otp + "</b></h3>";
         EmailUtil.sendEmail(user.getEmail(), "Mã xác thực kích hoạt tài khoản", body);
         return true;

@@ -1,0 +1,86 @@
+package huytan.vn.controllers;
+
+import java.io.IOException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import huytan.vn.entities.User;
+import huytan.vn.services.IUserService;
+import huytan.vn.service.impl.UserServiceImpl;
+
+@WebServlet(urlPatterns = "/login")
+public class LoginController extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private IUserService userService = new UserServiceImpl();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        HttpSession session = req.getSession(false);
+
+        if (session != null) {
+            String errorMsg = (String) session.getAttribute("error");
+            if (errorMsg != null) {
+                req.setAttribute("error", errorMsg);
+                session.removeAttribute("error");
+            }
+
+            User account = (User) session.getAttribute("account");
+            if (account != null) {
+                redirectByRole(account, req, resp);
+                return;
+            }
+        }
+
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("username".equals(cookie.getName())) {
+                    String username = cookie.getValue();
+                    User user = userService.get(username);
+                    if (user != null && user.getStatus() == 1) {
+                        session = req.getSession(true);
+                        session.setAttribute("account", user);
+                        redirectByRole(user, req, resp);
+                        return;
+                    }
+                }
+            }
+        }
+
+        req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String account = req.getParameter("account");
+        String pass = req.getParameter("password");
+        String remember = req.getParameter("remember");
+
+        User user = userService.login(account, pass);
+        if (user != null) {
+            HttpSession session = req.getSession(true);
+            session.setAttribute("account", user);
+
+            if ("on".equals(remember)) {
+                Cookie cookie = new Cookie("username", user.getUsername());
+                cookie.setMaxAge(30 * 60); // 30 phút
+                cookie.setPath(req.getContextPath().isEmpty() ? "/" : req.getContextPath());
+                resp.addCookie(cookie);
+            }
+
+            redirectByRole(user, req, resp);
+        } else {
+            req.setAttribute("error", "Tài khoản/mật khẩu sai hoặc tài khoản chưa kích hoạt OTP!");
+            req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+        }
+    }
+
+    private void redirectByRole(User user, HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+        if (user.getRoleid() == 1) {
+            resp.sendRedirect(req.getContextPath() + "/admin/products");
+        } else {
+            resp.sendRedirect(req.getContextPath() + "/home");
+        }
+    }
+}

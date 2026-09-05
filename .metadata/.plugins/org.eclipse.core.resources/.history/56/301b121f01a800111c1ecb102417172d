@@ -1,0 +1,7 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<footer class="bg-dark text-white py-4 mt-auto border-top border-secondary">
+    <div class="container text-center">
+        <p class="mb-1 fw-bold">&copy; 2026 SHOP ONLINE - Đại Học Sư Phạm Kỹ Thuật TP.HCM (HCMUTE)</p>
+        <small class="text-secondary">Cùng Lập trình Web Nào Hẹ Hẹ</small>
+    </div>
+</footer>

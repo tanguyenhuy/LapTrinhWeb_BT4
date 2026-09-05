@@ -1,0 +1,36 @@
+package huytan.vn.configs;
+
+import huytan.vn.entities.User;
+import huytan.vn.services.IUserService;
+import huytan.vn.services.impl.UserServiceImpl;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.annotation.WebListener;
+
+@WebListener
+public class AppContextListener implements ServletContextListener {
+
+    private IUserService userService = new UserServiceImpl();
+
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        try {
+            // Kiểm tra xem đã có tài khoản 'admin' trong DB chưa
+            User admin = userService.get("admin");
+            if (admin == null) {
+                admin = new User();
+                admin.setUsername("admin");
+                admin.setPassword("123"); // Nếu hệ thống có mã hóa (MD5/Bcrypt) thì mã hóa trước khi set
+                admin.setFullname("System Administrator");
+                admin.setEmail("admin@system.local");
+                admin.setStatus(1); // Đã kích hoạt
+                admin.setRoleid(1); // Quyền Admin
+                
+                userService.insert(admin); // hoặc dùng userRepository.save(admin)
+                System.out.println(">>> Đã tự động tạo tài khoản Admin mặc định: admin / 123");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

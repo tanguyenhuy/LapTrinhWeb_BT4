@@ -10,4 +10,5 @@ public interface IUserService {
     User get(String usernameOrEmail);
     User findById(int id);
     void update(User user);
+    void insert(User user);
 }

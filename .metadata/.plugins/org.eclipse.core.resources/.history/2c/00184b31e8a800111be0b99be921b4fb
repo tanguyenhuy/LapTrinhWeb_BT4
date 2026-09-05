@@ -1,0 +1,90 @@
+package huytan.vn.service.impl;
+
+import huytan.vn.dao.IUserDao;
+import huytan.vn.dao.impl.UserDaoImpl;
+import huytan.vn.entities.User;
+import huytan.vn.services.IUserService;
+import huytan.vn.util.EmailUtil;
+
+public class UserServiceImpl implements IUserService {
+    private IUserDao userDao = new UserDaoImpl();
+
+    @Override
+    public boolean register(User user) {
+        if (userDao.findByUsername(user.getUsername()) != null || userDao.findByEmail(user.getEmail()) != null) {
+            return false;
+        }
+        String otp = EmailUtil.getRandomOTP();
+        user.setCode(otp);
+        user.setStatus(0); 
+        user.setRoleid(3); 
+        userDao.insert(user);
+
+        
+        String body = "<h3>Mã OTP kích hoạt tài khoản của bạn là: <b style='color:red;'>" + otp + "</b></h3>";
+        EmailUtil.sendEmail(user.getEmail(), "Mã xác thực kích hoạt tài khoản", body);
+        return true;
+    }
+
+    @Override
+    public boolean verifyOtp(String email, String otp) {
+        User user = userDao.findByEmail(email);
+        if (user != null && otp.equals(user.getCode())) {
+            user.setStatus(1); 
+            user.setCode(null);
+            userDao.update(user);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public User login(String usernameOrEmail, String password) {
+        User user = userDao.findByUsernameOrEmail(usernameOrEmail);
+        if (user != null && password.equals(user.getPassword()) && user.getStatus() == 1) {
+            return user;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean sendForgotPasswordOtp(String email) {
+        User user = userDao.findByEmail(email);
+        if (user != null) {
+            String otp = EmailUtil.getRandomOTP();
+            user.setCode(otp);
+            userDao.update(user);
+
+            String body = "<h3>Mã OTP đặt lại mật khẩu của bạn là: <b style='color:blue;'>" + otp + "</b></h3>";
+            return EmailUtil.sendEmail(email, "Mã xác thực khôi phục mật khẩu", body);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean resetPassword(String email, String otp, String newPassword) {
+        User user = userDao.findByEmail(email);
+        if (user != null && otp.equals(user.getCode())) {
+            user.setPassword(newPassword);
+            user.setCode(null);
+            userDao.update(user);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public User get(String usernameOrEmail) {
+        return userDao.findByUsernameOrEmail(usernameOrEmail);
+    }
+    
+    @Override
+    public User findById(int id) {
+        return userDao.findById(id);
+    }
+
+    @Override
+    public void update(User user) {
+        userDao.update(user);
+    }
+}

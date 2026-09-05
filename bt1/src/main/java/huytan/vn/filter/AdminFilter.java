@@ -1,0 +1,46 @@
+package huytan.vn.filter;
+
+import java.io.IOException;
+import huytan.vn.entities.User;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+@WebFilter(urlPatterns = "/admin/*")
+public class AdminFilter implements Filter {
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        
+        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse resp = (HttpServletResponse) response;
+        HttpSession session = req.getSession(false);
+
+        User user = (session != null) ? (User) session.getAttribute("account") : null;
+
+        if (user == null) {
+            req.getSession(true).setAttribute("error", "Vui lòng đăng nhập tài khoản Admin để tiếp tục!");
+            resp.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+
+        // 2. Đã đăng nhập nhưng không phải Admin (nếu entity User của bạn có trường roleid)
+        // Kiểm tra roleid == 1 là Admin (hoặc user.getRoleid() != 1 tùy theo thiết kế entity)
+        /*
+        if (user.getRoleid() != 1) {
+            req.getSession().setAttribute("error", "Bạn không có quyền truy cập trang quản trị!");
+            resp.sendRedirect(req.getContextPath() + "/home");
+            return;
+        }
+        */
+
+        chain.doFilter(request, response);
+    }
+}
